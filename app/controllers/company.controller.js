@@ -21,81 +21,15 @@ exports.create = (req, res, next) => {
     postalCode: req.body.postalCode,
     city: req.body.city
     });
-
-    //store photo
-    if(req.file){
-        company.photo = req.file.path
-    }
-
-
-    // get superadmin role
-    let superadminRole;
     
 
-    // add superadmin role into creator of company
-    var isSuperadmin = new Boolean(false);
-    User.findById(req.body.creatorID).exec((err, user) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-    
-        Role.find({_id: { $in: user.roles }},
-          (err, roles) => {
-                if (err) {
-                res.status(500).send({ message: err });
-                return;
-                }
-        
-                for (let i = 0; i < roles.length; i++) {
-                    if (roles[i].name === "superadmin") {
-                        next();
-                        return;
-                    }
-                }
-                //if not super admin
-                //Get the superadmin role object and add it to the user
-                Role.findOne({name: "superadmin"}, (err, role) => {
-                    if(err){
-                        res.status(500).send({message: "Role superadmin not fount." || err})
-                        return
-                    }
-                    else 
-                        user.roles.push(role);
-                        //save role in user (this should be done here to save the role correctly)
-                        user.save(user)
-                        .then(data => {
-                        res.send(data);
-                        })
-                        .catch(err => {
-                            res.status(500).send({message:err.message || "Some error occurred while updating for superadmin role user."});
-                        }); 
-                });
-
-                //save company
-                company.save(company)
-                .then(data=>{
-                    //set companyID for user
-                    user.companyID = data._id;
-                //save companyID in user (this should be done here to save the role correctly)
-                user.save(user)
-                .then(data => {
-                res.send(data);
-                })
-                .catch(err => {
-                    res.status(500).send({message:err.message || "Some error occurred while updating companyID for user."});
-                }); 
-                })
-                .catch(err=>{
-                    res.status(500).send({message:err.message || "Some error occurred while creating the company."});
-                });
-            }
-        );
-
-        
-        
-    
-
+    // save company
+    company.save(company)
+    .then(data => {
+        res.status(200).send(data);
+    })
+    .catch(err => {
+        res.status(500).send({message:"Some error occurred while creating company"});
     });
     
 

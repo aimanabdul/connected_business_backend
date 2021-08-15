@@ -1,5 +1,6 @@
 const { authJwt } = require("../middleware");
 const controller = require("../controllers/user.controller");
+const upload = require ("../middleware/upload")
 
 module.exports = function(app) {
   app.use(function(req, res, next) {
@@ -13,16 +14,19 @@ module.exports = function(app) {
   var router = require("express").Router();
 
   // Find all users with company id
-  router.get("/company/:id",  controller.findAllByCompanyId);
+  router.get("/company/:id",  [authJwt.verifyToken], controller.findAllByCompanyId);
 
   // Find a User with an Id
   router.get("/user/:id", [authJwt.verifyToken], controller.findOne);
 
-    // Find a User with email
-    router.get("/user/email/:email", controller.findOneByEmail);
+  // Find a User with email
+  router.get("/user/email/:email", controller.findOneByEmail);
 
   // update a User with an Id
   router.put("/:id" , [authJwt.verifyToken], controller.update);
+
+  // update a User with an Id
+  router.put("/user/upload/profilepic/:id", upload.single("profilePic") , controller.uploadProfilePic);
 
 
 

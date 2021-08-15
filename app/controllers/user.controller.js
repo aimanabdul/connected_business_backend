@@ -75,6 +75,32 @@ exports.update = (req, res) => {
   
 };
 
+exports.uploadProfilePic = (req, res) => {
+  if(!req.file){
+    res.status(404).send({message: "No file selected!"});
+    return;
+  }
+  // find the user by id
+  id = req.params.id;
+  let user;
+  User.findById(id)
+  .then(user => {
+    user.profilePic = "http://localhost:8080/uploads/" + req.file.path.slice(8);
+    //save user
+    user.save(user)
+    .then(data => {
+      //res.send(group);
+      res.status(200).send({ message: "User is successfully udated"})
+    })
+    .catch(err => {
+        res.status(500).send({message: err.message || "Some error occurred while updating the User"});
+    });
+  })
+  .catch(err => {
+    res.status(500).send({ message: "Error retreving User with id=" + id});
+  })
+}
+
 
 
 // Delete a User with the specified id in the request
